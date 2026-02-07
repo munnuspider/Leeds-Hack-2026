@@ -31,7 +31,7 @@ Then all actions are added together for the total daily CO2 saved.
 | **Reusable Bag (per use)** | 0.04 kg CO2 | Each use avoids producing/disposing 1 plastic bag (~0.04 kg CO2) |
 | **Reusable Water Bottle (per use)** | 0.082 kg CO2 | Avoids buying 1 plastic water bottle (production + transportation) |
 
-### 🚴 TRANSPORTATION (vs. Driving Alone)
+###  TRANSPORTATION (vs. Driving Alone)
 
 | Action | CO2 Factor | Explanation |
 |--------|------------|-------------|
