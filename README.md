@@ -45,3 +45,167 @@ Back-end guide for Bhavya and Hafeezah
   
 - FRIENDS SYSTEM – community
   - To access someone else’s planet, you need to befriend them. To befriend them, you have to be the same level as them. Level is based on XP based on the green tasks you have completed.
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+THIS IS THE ORIGINAL SIGNIN HTML:
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up / Login</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      color: #fff;
+    }
+
+    h1 {
+      position: absolute;
+      top: 60px;
+      font-size: 48px;
+      font-weight: 300;
+    }
+
+    /* Outer card */
+    .card {
+      width: 90%;
+      max-width: 900px;
+      padding: 50px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #1f2a6d, #6a2c70);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Inner panel */
+    .panel {
+      padding: 40px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3a4aa8, #b14d9b);
+    }
+
+    .field {
+      margin-bottom: 35px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      border-radius: 12px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #5866d9, #e064b7);
+    }
+
+    .icon {
+      font-size: 26px;
+      margin-right: 14px;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 20px;
+    }
+
+    .input-wrapper input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Optional button (not shown in image but useful) */
+    .btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, #6b7cff, #ff7ac7);
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sign Up / Login</h1>
+
+  <div class="card">
+    <div class="panel">
+
+      <div class="field">
+        <label>Username</label>
+        <div class="input-wrapper">
+          <span class="icon">🤖</span>
+          <input type="text" placeholder="Enter username" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrapper">
+          <span class="icon">🤖</span>
+          <input type="password" placeholder="Enter password" />
+        </div>
+      </div>
+
+      <!-- Optional -->
+      <!-- <button class="btn">Continue</button> -->
+
+    </div>
+  </div>
+</body>
+</html>
+
+
+
