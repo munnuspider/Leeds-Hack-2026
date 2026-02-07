@@ -242,7 +242,7 @@ const App: React.FC = () => {
 
   // Earth scale animation (starts expanding as you scroll)
   // Start at 1.5 and grow to 10.0
-  const earthScale = useTransform(scrollYProgress, [0, 0.4], [1.5, 10.0]);
+  const earthScale = useTransform(scrollYProgress, [0, 0.4], [1.5, 3.0]);
   const earthOpacity = useTransform(scrollYProgress, [0.4, 0.5], [1, 0]);
   
   // Text fade out as scroll progresses
@@ -280,7 +280,7 @@ const App: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:rotate-12 transition-transform">
             <Globe className="text-white" size={24} />
           </div>
-          <span className="text-xl font-bold tracking-tight">Earthly</span>
+          <span className="text-xl font-bold tracking-tight">Bumi & Me</span>
         </div>
         <ul className="hidden md:flex items-center gap-8 font-medium text-slate-300">
           <li onClick={() => scrollToSection(heroRef)} className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
@@ -309,7 +309,7 @@ const App: React.FC = () => {
       </nav>
 
       {/* Hero Section - Fixed background logic for the scroll effect */}
-      <section ref={heroRef} className="h-screen sticky top-0 flex flex-col items-center justify-center px-4 overflow-hidden pt-20">
+      <section ref={heroRef} className="h-screen sticky top-0 flex flex-col items-center justify-center px-4 relative min-h-[200vh] overflow-visible pt-20">
         
         {/* Text content - Now positioned above the Earth container */}
         <motion.div 
@@ -332,7 +332,10 @@ const App: React.FC = () => {
         </motion.div>
 
         {/* 3D Earth Viewport - Positioned relative and below text */}
-        <div className="relative w-full flex-grow max-h-[60vh] z-0 cursor-grab active:cursor-grabbing">
+        {/* <div className="relative w-full flex-grow z-0 cursor-grab active:cursor-grabbing"> */}
+        <div className="relative w-full h-screen overflow-visible z-0 cursor-grab active:cursor-grabbing">
+
+
           <Canvas dpr={[1, 2]}>
             <Suspense fallback={null}>
               <PerspectiveCamera makeDefault position={[0, 0, 5]} />
@@ -539,7 +542,7 @@ const App: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">
                 <Globe className="text-white" size={24} />
               </div>
-              <span className="text-2xl font-black tracking-tight">Earthly</span>
+              <span className="text-2xl font-black tracking-tight">Bumi & Me</span>
             </div>
             <p className="text-slate-500 max-w-md leading-relaxed">
               We believe environmental awareness shouldn't be boring. By combining soft 3D design with interactive social mechanics, we're building a future where saving the planet is as intuitive as scrolling through space.
@@ -575,7 +578,7 @@ const App: React.FC = () => {
           </div>
         </div>
         <div className="container mx-auto mt-20 pt-8 border-t border-white/5 text-center text-slate-600 text-sm font-medium">
-          &copy; 2025 Earthly Digital Ecosystem. All rights reserved. Built with love for the Planet.
+          &copy; 2025 Bumi & Me Digital Ecosystem. All rights reserved. Built with love for the Planet.
         </div>
       </footer>
 
