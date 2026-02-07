@@ -99,9 +99,9 @@ const App: React.FC = () => {
             <Info size={18} /> About
           </li>
         </ul>
-        <button className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
+        <a href='signin.html' className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
           Join Community
-        </button>
+        </a>
       </nav>
 
       {/* Hero Section - Fixed background logic for the scroll effect */}
