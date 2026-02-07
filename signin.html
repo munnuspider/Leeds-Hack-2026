@@ -82,21 +82,27 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Optional button (not shown in image but useful) */
     .btn {
       margin-top: 20px;
       width: 100%;
       padding: 14px;
-      font-size: 18px;
+      font-size: 22px;
       border-radius: 10px;
       border: none;
       cursor: pointer;
       color: #fff;
       background: linear-gradient(135deg, #6b7cff, #ff7ac7);
+      font-weight: bold;
     }
 
     .btn:hover {
       opacity: 0.9;
+    }
+
+    #status-msg {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -111,7 +117,7 @@
         <label>Username</label>
         <div class="input-wrapper">
           <span class="icon">🤖</span>
-          <input type="text" placeholder="Enter username" />
+          <input type="text" id="username" placeholder="Enter username" />
         </div>
       </div>
 
@@ -119,14 +125,27 @@
         <label>Password</label>
         <div class="input-wrapper">
           <span class="icon">🤖</span>
-          <input type="password" placeholder="Enter password" />
+          <input type="password" id="password" placeholder="Enter password" />
         </div>
       </div>
 
-      <!-- Optional -->
-      <!-- <button class="btn">Continue</button> -->
+      <button class="btn" onclick="checkLogin()">Continue to Galaxy</button>
+      
+      <div id="status-msg"></div>
 
     </div>
   </div>
-</body>
-</html>
+
+  <script>
+    function checkLogin() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const status = document.getElementById('status-msg');
+
+        // Practice credentials
+        if (user === "Pilot" && pass === "Galaxy123") {
+            status.style.color = "#00ff88";
+            status.innerText = "🚀 Access Granted! Welcome, Pilot.";
+            
+            // Saves the name so the next part of the site knows who you are
+            localStorage.setItem('active_user',
