@@ -301,7 +301,7 @@ const App: React.FC = () => {
           <button onClick={() => setView('calculator')} className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
             My Impact
           </button>
-        <a href='signin.html' className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm  bg-emerald-600 hover:bg-emerald-500">
+        <a href='signin.html' className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm bg-emerald-600 hover:bg-emerald-500">
           Join Community
         </a>
         </div>
@@ -514,13 +514,16 @@ const App: React.FC = () => {
               whileHover={{ scale: 1.05 }} 
               whileTap={{ scale: 0.95 }} 
               onClick={() => setView('calculator')}
-              className="px-12 py-6 rounded-3x1 bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2x1 shadow-2x1 shadow-emerald-500/20 flex items-center gap-4 transition-colors group">
+              className="px-12 py-6 rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2x1 shadow-2x1 shadow-emerald-500/20 flex items-center gap-4 transition-colors group">
 
       
               <Calculator size={32} className="group-hover:rotate-12 transition-transform" />
               What's your impact?
             </motion.button>
           </div>
+
+
+          
       </section>
 
 
