@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Stars } from '@react-three/drei';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight } from 'lucide-react';
 import { SoftEarth, ClayTree, GalaxyPlanet } from './components/ThreeModels';
 import { Task, LeaderboardEntry } from './types';
+import * as THREE from 'three';
 
 const INITIAL_TASKS: Task[] = [
   { id: 1, title: 'Use a reusable water bottle', impact: '2.5kg CO2 saved', completed: true },
@@ -22,6 +23,30 @@ const LEADERBOARD: LeaderboardEntry[] = [
   { id: 5, name: 'ForestFriend', points: 8900, rank: 5 },
 ];
 
+// Helper component to animate Three.js elements using Framer Motion values
+// This avoids the use of motion.group which is not part of the standard framer-motion DOM package.
+const AnimatedEarth: React.FC<{ scale: any; opacity: any }> = ({ scale, opacity }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  useFrame(() => {
+    if (groupRef.current) {
+      // Apply the animated scale
+      const s = scale.get();
+      groupRef.current.scale.set(s, s, s);
+      
+      // Control visibility based on opacity threshold as a proxy for fading the whole group
+      const o = opacity.get();
+      groupRef.current.visible = o > 0.01;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <SoftEarth scale={1} />
+    </group>
+  );
+};
+
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,9 +57,14 @@ const App: React.FC = () => {
     offset: ["start start", "end end"]
   });
 
-  // Earth scale animation (stops expanding halfway through)
-  const earthScale = useTransform(scrollYProgress, [0, 0.4], [1.5, 4.5]);
+  // Earth scale animation (starts expanding as you scroll)
+  // Start at 1.5 and grow to 10.0
+  const earthScale = useTransform(scrollYProgress, [0, 0.4], [1.5, 10.0]);
   const earthOpacity = useTransform(scrollYProgress, [0.4, 0.5], [1, 0]);
+  
+  // Text fade out as scroll progresses
+  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const textY = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
 
   // Tree growth section monitoring
   const treeSectionRef = useRef(null);
@@ -74,28 +104,31 @@ const App: React.FC = () => {
         </button>
       </nav>
 
-      {/* Hero Section */}
-      <section className="h-screen sticky top-0 flex flex-col items-center justify-start pt-32 px-4 pointer-events-none">
+      {/* Hero Section - Fixed background logic for the scroll effect */}
+      <section className="h-screen sticky top-0 flex flex-col items-center justify-center px-4 overflow-hidden pt-20">
+        
+        {/* Text content - Now positioned above the Earth container */}
         <motion.div 
+          style={{ opacity: textOpacity, y: textY }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="text-center max-w-4xl z-10"
+          className="text-center max-w-4xl z-10 mb-8 pointer-events-none"
         >
           <span className="inline-block py-1 px-4 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-semibold mb-6 border border-emerald-500/20">
             Current Global Impact
           </span>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight">
             Together, we’ve saved <br/>
             <span className="text-blue-400">10,000</span> bottles from landfill!
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-medium">
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto font-medium">
             Join thousands of Earthlings tracking their daily environmental impact through our soft-space digital ecosystem.
           </p>
         </motion.div>
 
-        {/* 3D Earth Viewport */}
-        <div className="absolute inset-0 z-0 pointer-events-auto">
+        {/* 3D Earth Viewport - Positioned relative and below text */}
+        <div className="relative w-full flex-grow max-h-[60vh] z-0 cursor-grab active:cursor-grabbing">
           <Canvas dpr={[1, 2]}>
             <Suspense fallback={null}>
               <PerspectiveCamera makeDefault position={[0, 0, 5]} />
@@ -103,14 +136,8 @@ const App: React.FC = () => {
               <pointLight position={[10, 10, 10]} intensity={1.5} />
               <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
               
-              <motion.group 
-                style={{ 
-                  scale: earthScale,
-                  opacity: earthOpacity 
-                }}
-              >
-                <SoftEarth scale={1} />
-              </motion.group>
+              {/* Fix: Replaced motion.group with a custom AnimatedEarth component that correctly handles motion values via useFrame */}
+              <AnimatedEarth scale={earthScale} opacity={earthOpacity} />
 
               <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
               <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.5} />
@@ -120,11 +147,11 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Transition Space */}
+      {/* Transition Space - Provides the scroll length to animate Earth growth */}
       <div className="h-screen pointer-events-none" />
 
       {/* Daily Tasks Section */}
-      <section ref={treeSectionRef} className="min-h-screen relative flex items-center justify-center py-20 px-8">
+      <section ref={treeSectionRef} className="min-h-screen relative flex items-center justify-center py-20 px-8 bg-slate-900/50">
         <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
           
           {/* Growing Tree Column */}
@@ -324,7 +351,7 @@ const App: React.FC = () => {
       </footer>
 
       {/* Global Galaxy Background for all sections */}
-      <div className="fixed inset-0 z-[-1] opacity-40">
+      <div className="fixed inset-0 z-[-1] opacity-40 pointer-events-none">
         <Canvas>
           <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
         </Canvas>
