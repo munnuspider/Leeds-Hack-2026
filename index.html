@@ -6,6 +6,7 @@
   <title>Sign Up / Login</title>
 
   <style>
+    /* ... (Your existing styles remain exactly as they were) ... */
     * {
       box-sizing: border-box;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -15,6 +16,7 @@
       margin: 0;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: #000;
@@ -28,17 +30,15 @@
       font-weight: 300;
     }
 
-    /* Outer card */
     .card {
       width: 90%;
-      max-width: 900px;
+      max-width: 500px; /* Adjusted width for better embed scaling */
       padding: 50px;
       border-radius: 16px;
       background: linear-gradient(135deg, #1f2a6d, #6a2c70);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     }
 
-    /* Inner panel */
     .panel {
       padding: 40px;
       border-radius: 14px;
@@ -82,7 +82,6 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Optional button (not shown in image but useful) */
     .btn {
       margin-top: 20px;
       width: 100%;
@@ -93,10 +92,19 @@
       cursor: pointer;
       color: #fff;
       background: linear-gradient(135deg, #6b7cff, #ff7ac7);
+      font-weight: bold;
+      transition: transform 0.2s;
     }
 
     .btn:hover {
+      transform: scale(1.02);
       opacity: 0.9;
+    }
+
+    #status-msg {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -108,25 +116,3 @@
     <div class="panel">
 
       <div class="field">
-        <label>Username</label>
-        <div class="input-wrapper">
-          <span class="icon">🤖</span>
-          <input type="text" placeholder="Enter username" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Password</label>
-        <div class="input-wrapper">
-          <span class="icon">🤖</span>
-          <input type="password" placeholder="Enter password" />
-        </div>
-      </div>
-
-      <!-- Optional -->
-      <!-- <button class="btn">Continue</button> -->
-
-    </div>
-  </div>
-</body>
-</html>
