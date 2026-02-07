@@ -4,22 +4,22 @@ LOGIC AND FLOW OF PLANET WEBSITE
 Back-end guide for Bhavya and Hafeezah
 
 - CHATBOT
----- Using open source dataset with environmental science education
----- NLP
----- Genio: Rebooting learning
----- Google Gemini AI?
+  - Using open source dataset with environmental science education
+  - NLP
+  - Genio: Rebooting learning
+  - Google Gemini AI?
 
   
 - XP TRACKERS
----- Tasks
------- Recycling bottles and cartons
------- Walking/ cycling
------- Electricity saved
+  - Tasks
+    - Recycling bottles and cartons
+    - Walking/ cycling
+    - Electricity saved
 
   
 - XP TRACKERS AND LEVELS
----- With every task accomplished, certain amount of XP is gained
----- A certain amount of XP is needed to progress to the next level
+  - With every task accomplished, certain amount of XP is gained
+  - A certain amount of XP is needed to progress to the next level
 ---- It will restart at the start of every level.
 ---- E.g. Level 1 needs 10 XP to get to Level 2. Level 2 needs 20 XP to get to level 3. And so on, increment by 10 XP each time.
 
