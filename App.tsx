@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Stars } from '@react-three/drei';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
-import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight } from 'lucide-react';
+import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag } from 'lucide-react';
 import { SoftEarth, ClayTree, GalaxyPlanet } from './components/ThreeModels';
 import { Task, LeaderboardEntry } from './types';
 import * as THREE from 'three';
@@ -22,6 +22,63 @@ const LEADERBOARD: LeaderboardEntry[] = [
   { id: 4, name: 'OceanSaver', points: 9500, rank: 4 },
   { id: 5, name: 'ForestFriend', points: 8900, rank: 5 },
 ];
+
+// --- Calculation Logic (Ported exactly from Python emissions_calculator) ---
+const CARBON_FACTORS = {
+  // RECYCLING (kg CO2 saved per unit)
+  plastic_bottle_500ml: 0.033,
+  plastic_bottle_1L: 0.066,
+  aluminium_can_100ml: 0.17,
+  glass_bottle_500ml: 0.15,
+  glass_bottle_300ml: 0.12,
+  carboard_box_100g: 0.7, // As named in carbon_factors.py
+
+  // TRANSPORT (kg CO2 saved per km)
+  walking_per_km: 0.192,
+  bus_per_km_saved: 0.087,
+};
+
+interface ImpactResult {
+  recycling_co2_saved: number;
+  transport_co2_saved: number;
+  total_co2_saved: number;
+  unit: string;
+}
+
+const calculateImpact = (data: { 
+  p_500: number; 
+  p_1l: number; 
+  alum: number; 
+  g_500: number; 
+  g_300: number; 
+  card: number;
+  walk: number; 
+  bus: number;
+}): ImpactResult => {
+  // Logic matches CarbonCalculator class in calculator.py
+  const recycling_co2 = 
+    (data.p_500 * CARBON_FACTORS.plastic_bottle_500ml) +
+    (data.p_1l * CARBON_FACTORS.plastic_bottle_1L) +
+    (data.alum * CARBON_FACTORS.aluminium_can_100ml) +
+    (data.g_500 * CARBON_FACTORS.glass_bottle_500ml) +
+    (data.g_300 * CARBON_FACTORS.glass_bottle_300ml) +
+    (data.card * CARBON_FACTORS.carboard_box_100g);
+
+  const transport_co2 = 
+    (data.walk * CARBON_FACTORS.walking_per_km) +
+    (data.bus * CARBON_FACTORS.bus_per_km_saved);
+
+  const total_co2 = recycling_co2 + transport_co2;
+
+  return {
+    recycling_co2_saved: Math.round(recycling_co2 * 1000) / 1000,
+    transport_co2_saved: Math.round(transport_co2 * 1000) / 1000,
+    total_co2_saved: Math.round(total_co2 * 1000) / 1000,
+    unit: "kg CO2"
+  };
+};
+
+// --- Components ---
 
 // Helper component to animate Three.js elements using Framer Motion values
 // This avoids the use of motion.group which is not part of the standard framer-motion DOM package.
@@ -47,10 +104,136 @@ const AnimatedEarth: React.FC<{ scale: any; opacity: any }> = ({ scale, opacity 
   );
 };
 
+
+
+const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const [formData, setFormData] = useState({ 
+    p_500: 0, p_1l: 0, alum: 0, g_500: 0, g_300: 0, card: 0, walk: 0, bus: 0 
+  });
+  const [result, setResult] = useState<ImpactResult | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setResult(calculateImpact(formData));
+  };
+
+  const formFields = [
+    { id: 'p_500', label: '500ml Plastic Bottles', icon: <Globe className="text-blue-400" />, section: 'Recycling' },
+    { id: 'p_1l', label: '1L Plastic Bottles', icon: <Globe className="text-blue-500" />, section: 'Recycling' },
+    { id: 'alum', label: '100ml Aluminum Cans', icon: <Zap className="text-yellow-400" />, section: 'Recycling' },
+    { id: 'g_500', label: '500ml Glass Bottles', icon: <ShoppingBag className="text-emerald-400" />, section: 'Recycling' },
+    { id: 'g_300', label: '300ml Glass Bottles', icon: <ShoppingBag className="text-emerald-500" />, section: 'Recycling' },
+    { id: 'card', label: '100g Cardboard Boxes', icon: <Box className="text-orange-400" />, section: 'Recycling' },
+    { id: 'walk', label: 'Kilometres Walked', icon: <Leaf className="text-green-400" />, section: 'Transport' },
+    { id: 'bus', label: 'Bus Kilometres (vs Car)', icon: <Calculator className="text-purple-400" />, section: 'Transport' },
+  ];
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-slate-950 overflow-y-auto"
+    >
+      <div className="fixed inset-0 z-[-1] opacity-30">
+        <Canvas>
+          <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
+        </Canvas>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-24">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-12 transition-colors">
+          <ArrowLeft size={20} /> Back to Earth
+        </button>
+
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-black mb-4">Precision Impact Calculator</h1>
+          <p className="text-slate-400 text-lg">Detailed assessment based on our latest carbon factors.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-12 mb-16">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {formFields.map((field) => (
+              <div key={field.id} className="clay-card p-6 flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                    {field.icon}
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-200 block text-sm">{field.label}</label>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{field.section}</span>
+                  </div>
+                </div>
+                <input 
+                  type="number" 
+                  step="any"
+                  min="0"
+                  value={formData[field.id as keyof typeof formData]}
+                  onChange={(e) => setFormData({ ...formData, [field.id]: parseFloat(e.target.value) || 0 })}
+                  className="bg-slate-900/50 border-2 border-white/5 rounded-2xl p-4 text-xl font-black focus:border-blue-500 outline-none transition-all shadow-inner"
+                  placeholder="0"
+                />
+              </div>
+            ))}
+          </div>
+          <button 
+            type="submit" 
+            className="w-full py-8 rounded-3xl bg-blue-500 hover:bg-blue-600 font-black text-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-4"
+          >
+            <Calculator size={32} />
+            Generate Detailed Impact Report
+          </button>
+        </form>
+
+        <AnimatePresence>
+          {result && (
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="clay-card p-10 bg-emerald-500/5 border-emerald-500/20"
+            >
+              <h2 className="text-3xl font-black mb-8 flex items-center gap-3">
+                <Trophy className="text-yellow-400" /> Your Earthly Report
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="space-y-1">
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">Recycling CO2 Saved</p>
+                  <p className="text-3xl font-black text-blue-400">{result.recycling_co2_saved} {result.unit}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">Transport CO2 Saved</p>
+                  <p className="text-3xl font-black text-emerald-400">{result.transport_co2_saved} {result.unit}</p>
+                </div>
+                <div className="space-y-1 md:border-l border-white/10 md:pl-8">
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">Total Daily Impact</p>
+                  <p className="text-4xl font-black text-white">{result.total_co2_saved} {result.unit}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+// --- Main App ---
+
 const App: React.FC = () => {
+  
+  // line below: only in studio
+  const [view, setView] = useState<'landing' | 'calculator'>('landing');
+  
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  // few lines below: only in studio
+  const heroRef = useRef<HTMLElement>(null);
+  const tasksRef = useRef<HTMLElement>(null);
+  const leaderboardRef = useRef<HTMLElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
+  
+
   // Scroll monitoring
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -74,38 +257,59 @@ const App: React.FC = () => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
+  // below few lines scrollToSection: only in studio
+
+  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <div ref={containerRef} className="relative min-h-[400vh] text-slate-50 overflow-hidden">
+    // below few lines: only in studio
+    <div ref={containerRef} className="relative min-h-[400vh] text-slate-50 overflow-hidden bg-slate-950">
+      <AnimatePresence mode="wait">
+        {view === 'calculator' && (
+          <CalculatorPage key="calculator" onBack={() => setView('landing')} />
+      
+        )}
+      {/* Navigation */}
+      </AnimatePresence>"
       
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center backdrop-blur-md bg-slate-950/20 border-b border-white/5">
-        <div className="flex items-center gap-2 group cursor-pointer">
+        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => scrollToSection(heroRef)}> 
           <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:rotate-12 transition-transform">
             <Globe className="text-white" size={24} />
           </div>
           <span className="text-xl font-bold tracking-tight">Earthly</span>
         </div>
         <ul className="hidden md:flex items-center gap-8 font-medium text-slate-300">
-          <li className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
+          <li onClick={() => scrollToSection(heroRef)} className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
             <Globe size={18} /> Your Earth
           </li>
-          <li className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
+          <li onClick={() => scrollToSection(tasksRef)} className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
             <Leaf size={18} /> Daily Tasks
           </li>
-          <li className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
+          <li onClick={() => scrollToSection(leaderboardRef)} className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
             <Award size={18} /> Leaderboard
           </li>
-          <li className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
+          <li onClick={() => scrollToSection(aboutRef)} className="hover:text-white cursor-pointer transition-colors flex items-center gap-2">
             <Info size={18} /> About
           </li>
         </ul>
-        <a href='signin.html' className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
+        
+        <div className="flex items-center gap-4">
+          <button onClick={() => setView('calculator')} className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
+            My Impact
+          </button>
+        <a href='signin.html' className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm  bg-emerald-600 hover:bg-emerald-500">
           Join Community
         </a>
+        </div>
+
       </nav>
 
       {/* Hero Section - Fixed background logic for the scroll effect */}
-      <section className="h-screen sticky top-0 flex flex-col items-center justify-center px-4 overflow-hidden pt-20">
+      <section ref={heroRef} className="h-screen sticky top-0 flex flex-col items-center justify-center px-4 overflow-hidden pt-20">
         
         {/* Text content - Now positioned above the Earth container */}
         <motion.div 
@@ -151,8 +355,8 @@ const App: React.FC = () => {
       <div className="h-screen pointer-events-none" />
 
       {/* Daily Tasks Section */}
-      <section ref={treeSectionRef} className="min-h-screen relative flex items-center justify-center py-20 px-8 bg-slate-900/50">
-        <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section ref={tasksRef} className="min-h-screen relative flex items-center justify-center py-20 px-8 bg-slate-900/50">
+        <div ref={treeSectionRef} className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
           
           {/* Growing Tree Column */}
           <div className="h-[500px] w-full relative">
@@ -168,6 +372,7 @@ const App: React.FC = () => {
               <span className="text-slate-500 font-mono text-sm tracking-widest uppercase">Digital Reforestation</span>
             </div>
           </div>
+      
 
           {/* Tasks Column */}
           <motion.div 
@@ -224,13 +429,14 @@ const App: React.FC = () => {
           </p>
         </div>
 
+{/* in studio file its 600 instead of 800*/}
         <div className="h-[800px] w-full cursor-grab active:cursor-grabbing">
           <Canvas>
             <Suspense fallback={null}>
               <Stars count={2000} factor={2} />
               <ambientLight intensity={0.4} />
               <pointLight position={[10, 10, 10]} intensity={2} />
-              
+              {/* in studio file its different numbers instead of 0,0,0*/}
               <group position={[-3, 1, 0]}>
                 <GalaxyPlanet color="#f472b6" size={1.2} position={[0, 0, 0]} distort={0.4} />
               </group>
@@ -254,8 +460,8 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Leaderboard Section */}
-      <section className="min-h-screen py-24 px-8 bg-slate-950/40">
+      {/* Leaderboard Section. in line 350 onwards in textCompare not yet implemented */}
+      <section ref={leaderboardRef} className="min-h-screen py-24 px-8 bg-slate-950/40">
         <div className="container mx-auto max-w-5xl">
           <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
             <div>
@@ -300,11 +506,31 @@ const App: React.FC = () => {
             ))}
           </div>
         </div>
+
+
+
+          <div className="flex justify-center">
+            <motion.button 
+              whileHover={{ scale: 1.05 }} 
+              whileTap={{ scale: 0.95 }} 
+              onClick={() => setView('calculator')}
+              className="px-12 py-6 rounded-3x1 bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2x1 shadow-2x1 shadow-emerald-500/20 flex items-center gap-4 transition-colors group">
+
+      
+              <Calculator size={32} className="group-hover:rotate-12 transition-transform" />
+              What's your impact?
+            </motion.button>
+          </div>
       </section>
 
+
+
+
+
+
       {/* About / Footer */}
-      <footer className="py-24 px-8 border-t border-white/5 bg-slate-950">
-        <div className="container mx-auto grid md:grid-cols-4 gap-12">
+      <footer ref={aboutRef} className="py-24 px-8 border-t border-white/5 bg-slate-950">
+        <div className="container mx-auto grid md:grid-cols-4 gap-12 text-center">
           <div className="col-span-2 space-y-6">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">
