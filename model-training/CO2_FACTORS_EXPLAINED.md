@@ -14,7 +14,7 @@ Then all actions are added together for the total daily CO2 saved.
 
 ## Conversion Factors Used
 
-### 🔄 RECYCLING
+###  RECYCLING
 
 | Action | CO2 Factor | Explanation |
 |--------|------------|-------------|
@@ -24,7 +24,7 @@ Then all actions are added together for the total daily CO2 saved.
 | **Cardboard (per kg)** | 0.75 kg CO2 | Recycling cardboard reduces manufacturing emissions |
 | **Glass Bottle** | 0.15 kg CO2 | Glass recycling saves energy in production process |
 
-### ♻️ REUSABLE ITEMS
+###  REUSABLE ITEMS
 
 | Action | CO2 Factor | Explanation |
 |--------|------------|-------------|
@@ -42,7 +42,7 @@ Then all actions are added together for the total daily CO2 saved.
 
 *Note: Based on average passenger vehicle (404g CO2/mile)*
 
-### 💡 ENERGY SAVING
+###  ENERGY SAVING
 
 | Action | CO2 Factor | Explanation |
 |--------|------------|-------------|
@@ -75,7 +75,7 @@ TOTAL:                     7.17 kg CO2 saved
 
 **Annual Impact (if maintained):**
 - 7.17 kg/day × 365 days = 2,617 kg CO2/year
-- That's equivalent to planting ~125 trees! 🌳
+- That's equivalent to planting ~125 trees! 
 
 ---
 
@@ -101,12 +101,12 @@ TOTAL:                     7.17 kg CO2 saved
 
 ## Important Notes
 
-⚠️ **These are AVERAGE values:**
+ **These are AVERAGE values:**
 - Actual savings vary by region (electricity grid mix, transportation distance, etc.)
 - Conservative estimates used where ranges exist
 - Values represent "avoided emissions" compared to baseline alternatives
-
-✅ **All calculations in the dataset are mathematically correct:**
+  
+ **All calculations in the dataset are mathematically correct:**
 - No random numbers for CO2 saved
 - Each row's CO2 value = sum of (action × factor)
 - You can verify any row by hand!
@@ -121,5 +121,5 @@ This dataset is perfect for:
 - Educational projects about climate action
 - Gamifying sustainable behavior
 
-**The key insight:** Small daily actions add up! Someone saving 20 kg CO2/day = 7,300 kg/year = planting 350 trees! 🌍
+**The key insight:** Small daily actions add up! Someone saving 20 kg CO2/day = 7,300 kg/year = planting 350 trees! 
 
