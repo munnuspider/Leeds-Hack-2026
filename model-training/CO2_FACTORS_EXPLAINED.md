@@ -42,16 +42,6 @@ Then all actions are added together for the total daily CO2 saved.
 
 *Note: Based on average passenger vehicle (404g CO2/mile)*
 
-### 🥗 FOOD CHOICES (vs. Meat-Based Meals)
-
-| Action | CO2 Factor | Explanation |
-|--------|------------|-------------|
-| **Vegetarian Meal** | 2.5 kg CO2 | Beef production is carbon-intensive (methane, feed, land use). Vegetarian meal saves ~2.5 kg vs. beef meal |
-| **Vegan Meal** | 3.5 kg CO2 | No animal products = even lower emissions. Saves ~3.5 kg vs. meat meal |
-| **Local Food (per kg)** | 0.2 kg CO2 | Local food reduces transportation emissions (~20% reduction) |
-
-*Note: Beef meals have highest emissions (~7.2 kg CO2). Chicken ~1.2 kg. Plant-based ~0.9 kg*
-
 ### 💡 ENERGY SAVING
 
 | Action | CO2 Factor | Explanation |
@@ -61,12 +51,6 @@ Then all actions are added together for the total daily CO2 saved.
 | **Line Dried Laundry (per load)** | 2.3 kg CO2 | Electric dryers use ~3 kWh per load. Line drying avoids this completely |
 
 *Note: Based on average US electricity grid emissions (~0.42 kg CO2/kWh)*
-
-### 🌱 COMPOSTING
-
-| Action | CO2 Factor | Explanation |
-|--------|------------|-------------|
-| **Composting (per kg)** | 0.5 kg CO2 | Food waste in landfills produces methane (28× worse than CO2). Composting avoids this |
 
 ---
 
