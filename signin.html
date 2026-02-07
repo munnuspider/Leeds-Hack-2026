@@ -86,7 +86,7 @@
       margin-top: 20px;
       width: 100%;
       padding: 14px;
-      font-size: 22px;
+      font-size: 18px;
       border-radius: 10px;
       border: none;
       cursor: pointer;
@@ -101,8 +101,9 @@
 
     #status-msg {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 20px;
       font-size: 18px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -142,10 +143,25 @@
         const pass = document.getElementById('password').value;
         const status = document.getElementById('status-msg');
 
-        // Practice credentials
+        // Logic check
         if (user === "Pilot" && pass === "Galaxy123") {
             status.style.color = "#00ff88";
-            status.innerText = "🚀 Access Granted! Welcome, Pilot.";
+            status.innerText = "Access Granted! Redirecting...";
             
-            // Saves the name so the next part of the site knows who you are
-            localStorage.setItem('active_user',
+            // Save the user name for your other pages to use
+            localStorage.setItem('active_user', user);
+
+            // Move to the next page after 1 second
+            setTimeout(function() {
+                window.location.href = "index.html";
+            }, 1000);
+
+        } else {
+            status.style.color = "#ff4d4d";
+            status.innerText = "Invalid credentials. Try again.";
+        }
+    }
+  </script>
+</body>
+</html>
+
