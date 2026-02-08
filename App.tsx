@@ -884,7 +884,86 @@ const App: React.FC = () => {
           <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
         </Canvas>
       </div>
+{/* --- ABOUT US SECTION --- */}
+      <section 
+        ref={aboutRef} 
+        className="min-h-screen py-32 px-8 relative flex items-center justify-center bg-slate-950"
+      >
+        {/* Decorative Glow background */}
+        <div className="absolute w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
 
+        <div className="container mx-auto max-w-5xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              Our Galactic Mission
+            </h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium">
+              We are a <span className="text-white">team of 4</span> innovators at Leeds Hack 2026. 
+              We believe sustainability shouldn't be a chore—it should be a journey.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1: Missions */}
+            <motion.div 
+              whileHover={{ y: -10 }}
+              className="clay-card p-8 bg-white/5 border-blue-500/20"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6">
+                <Activity className="text-blue-400" size={30} />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Daily Tasks</h3>
+              <p className="text-slate-400 text-sm">
+                From recycling bottles to walking instead of driving. Every task you complete earns <strong>XP</strong> to power your digital ship.
+              </p>
+            </motion.div>
+
+            {/* Feature 2: Leveling */}
+            <motion.div 
+              whileHover={{ y: -10 }}
+              className="clay-card p-8 bg-white/5 border-emerald-500/20"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-6">
+                <Trophy className="text-emerald-400" size={30} />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Level Up</h3>
+              <p className="text-slate-400 text-sm">
+                Don't just save the planet—rank up! Move from <strong>Space Cadet</strong> to <strong>Galaxy Guardian</strong> as your CO2 impact grows.
+              </p>
+            </motion.div>
+
+            {/* Feature 3: AI Bot */}
+            <motion.div 
+              whileHover={{ y: -10 }}
+              className="clay-card p-8 bg-white/5 border-purple-500/20"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6">
+                <User className="text-purple-400" size={30} />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Eco-Chatbot</h3>
+              <p className="text-slate-400 text-sm">
+                Meet our <strong>custom-trained AI</strong>. We've built and trained this bot to guide your sustainability journey and answer complex recycling questions.
+              </p>
+            </motion.div>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="mt-20 text-center p-8 rounded-3xl bg-white/5 border border-white/10"
+          >
+            <p className="text-slate-300 font-medium italic">
+              "One small step for a pilot, one giant leap for the Galaxy."
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
     </div>
   );
