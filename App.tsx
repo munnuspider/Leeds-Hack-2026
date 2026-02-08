@@ -7,6 +7,8 @@ import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculato
 import { SoftEarth, ClayTree, GalaxyPlanet } from './components/ThreeModels';
 import { Task, LeaderboardEntry } from './types';
 import * as THREE from 'three';
+import ChatbotWidget from './ChatbotWidget';
+
 
 
 const INITIAL_TASKS: Task[] = [
@@ -882,6 +884,9 @@ const App: React.FC = () => {
           <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
         </Canvas>
       </div>
+
+      {/* Chatbot Widget */}
+<ChatbotWidget />
 
 
     </div>
