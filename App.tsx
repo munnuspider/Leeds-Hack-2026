@@ -3,10 +3,11 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Stars } from '@react-three/drei';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
-import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag } from 'lucide-react';
+import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag, User } from 'lucide-react';
 import { SoftEarth, ClayTree, GalaxyPlanet } from './components/ThreeModels';
 import { Task, LeaderboardEntry } from './types';
 import * as THREE from 'three';
+
 
 const INITIAL_TASKS: Task[] = [
   { id: 1, title: 'Use a reusable water bottle', impact: '2.5kg CO2 saved', completed: true },
@@ -15,6 +16,7 @@ const INITIAL_TASKS: Task[] = [
   { id: 4, title: 'Walk to work/school', impact: '3.8kg CO2 saved', completed: false },
 ];
 
+
 const LEADERBOARD: LeaderboardEntry[] = [
   { id: 1, name: 'EcoWarrior_99', points: 12500, rank: 1 },
   { id: 2, name: 'GreenGuardian', points: 11200, rank: 2 },
@@ -22,6 +24,7 @@ const LEADERBOARD: LeaderboardEntry[] = [
   { id: 4, name: 'OceanSaver', points: 9500, rank: 4 },
   { id: 5, name: 'ForestFriend', points: 8900, rank: 5 },
 ];
+
 
 // --- Calculation Logic (Ported exactly from Python emissions_calculator) ---
 const CARBON_FACTORS = {
@@ -33,10 +36,12 @@ const CARBON_FACTORS = {
   glass_bottle_300ml: 0.12,
   carboard_box_100g: 0.7, // As named in carbon_factors.py
 
+
   // TRANSPORT (kg CO2 saved per km)
   walking_per_km: 0.192,
   bus_per_km_saved: 0.087,
 };
+
 
 interface ImpactResult {
   recycling_co2_saved: number;
@@ -45,18 +50,19 @@ interface ImpactResult {
   unit: string;
 }
 
-const calculateImpact = (data: { 
-  p_500: number; 
-  p_1l: number; 
-  alum: number; 
-  g_500: number; 
-  g_300: number; 
+
+const calculateImpact = (data: {
+  p_500: number;
+  p_1l: number;
+  alum: number;
+  g_500: number;
+  g_300: number;
   card: number;
-  walk: number; 
+  walk: number;
   bus: number;
 }): ImpactResult => {
   // Logic matches CarbonCalculator class in calculator.py
-  const recycling_co2 = 
+  const recycling_co2 =
     (data.p_500 * CARBON_FACTORS.plastic_bottle_500ml) +
     (data.p_1l * CARBON_FACTORS.plastic_bottle_1L) +
     (data.alum * CARBON_FACTORS.aluminium_can_100ml) +
@@ -64,11 +70,14 @@ const calculateImpact = (data: {
     (data.g_300 * CARBON_FACTORS.glass_bottle_300ml) +
     (data.card * CARBON_FACTORS.carboard_box_100g);
 
-  const transport_co2 = 
+
+  const transport_co2 =
     (data.walk * CARBON_FACTORS.walking_per_km) +
     (data.bus * CARBON_FACTORS.bus_per_km_saved);
 
+
   const total_co2 = recycling_co2 + transport_co2;
+
 
   return {
     recycling_co2_saved: Math.round(recycling_co2 * 1000) / 1000,
@@ -78,24 +87,46 @@ const calculateImpact = (data: {
   };
 };
 
+
+// --- Leveling Logic ---
+const getLevelData = (totalXP: number) => {
+  let level = 1;
+  let xpForNext = 10;
+  let accumulatedXP = 0;
+  
+  while (totalXP >= accumulatedXP + (level * 10)) {
+    accumulatedXP += (level * 10);
+    level++;
+    xpForNext = level * 10;
+  }
+  
+  const xpInCurrentLevel = totalXP - accumulatedXP;
+  const progress = (xpInCurrentLevel / xpForNext) * 100;
+  
+  return { level, xpInCurrentLevel, xpForNext, progress };
+};
+
+
 // --- Components ---
+
 
 // Helper component to animate Three.js elements using Framer Motion values
 // This avoids the use of motion.group which is not part of the standard framer-motion DOM package.
 const AnimatedEarth: React.FC<{ scale: any; opacity: any }> = ({ scale, opacity }) => {
   const groupRef = useRef<THREE.Group>(null);
-  
+ 
   useFrame(() => {
     if (groupRef.current) {
       // Apply the animated scale
       const s = scale.get();
       groupRef.current.scale.set(s, s, s);
-      
+     
       // Control visibility based on opacity threshold as a proxy for fading the whole group
       const o = opacity.get();
       groupRef.current.visible = o > 0.01;
     }
   });
+
 
   return (
     <group ref={groupRef}>
@@ -105,17 +136,118 @@ const AnimatedEarth: React.FC<{ scale: any; opacity: any }> = ({ scale, opacity 
 };
 
 
+const StatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  // Sample Data
+  const userData = {
+    username: "EcoExplorer_2025",
+    continent: "Europe",
+    totalXP: 145,
+    planets: ["Nova", "Verdant", "Azure"]
+  };
+  
+  const { level, xpInCurrentLevel, xpForNext, progress } = getLevelData(userData.totalXP);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, x: 100 }} 
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: 100 }}
+      className="fixed inset-0 z-[100] bg-slate-950 overflow-y-auto"
+    >
+      <div className="fixed inset-0 z-[-1] opacity-30">
+        <Canvas>
+          <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
+        </Canvas>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-6 py-24">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-12 transition-colors">
+          <ArrowLeft size={20} /> Back to Earth
+        </button>
+
+        <div className="text-center mb-16">
+          <div className="w-32 h-32 rounded-full bg-blue-500 mx-auto mb-6 flex items-center justify-center shadow-xl shadow-blue-500/20 border-4 border-white/10">
+             <div className="relative w-16 h-16">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white" />
+                <div className="absolute bottom-0 left-0 w-16 h-7 rounded-t-full bg-white" />
+             </div>
+          </div>
+          <h1 className="text-5xl font-black mb-2">{userData.username}</h1>
+          <p className="text-blue-400 font-bold tracking-widest uppercase">{userData.continent} Guardian</p>
+        </div>
+
+        <div className="grid gap-8">
+          {/* Level Progress */}
+          <div className="clay-card p-10 bg-white/5">
+            <div className="flex justify-between items-end mb-6">
+              <div>
+                <span className="text-slate-500 font-bold uppercase text-xs tracking-tighter">Current Rank</span>
+                <h2 className="text-4xl font-black text-white">Level {level}</h2>
+              </div>
+              <div className="text-right">
+                <span className="text-slate-400 font-bold">{xpInCurrentLevel} / {xpForNext} XP</span>
+              </div>
+            </div>
+            <div className="h-4 w-full bg-slate-900 rounded-full overflow-hidden shadow-inner">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="h-full bg-gradient-to-r from-blue-500 to-emerald-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Planets Contribution */}
+            <div className="clay-card p-8">
+              <h3 className="text-xl font-black mb-6 flex items-center gap-2">
+                <Globe size={24} className="text-purple-400" /> Planets Contributed
+              </h3>
+              <div className="space-y-3">
+                {userData.planets.map(planet => (
+                  <div key={planet} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-white/5">
+                    <span className="font-bold text-slate-200">{planet}</span>
+                    <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-black rounded-lg">ACTIVE</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Achievements */}
+            <div className="clay-card p-8">
+              <h3 className="text-xl font-black mb-6 flex items-center gap-2">
+                <Award size={24} className="text-yellow-400" /> Badges Earned
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="aspect-square rounded-2xl bg-slate-900/50 border border-white/5 flex items-center justify-center group cursor-help transition-all hover:bg-white/10">
+                    <Zap className={`${i === 1 ? 'text-blue-400' : i === 2 ? 'text-emerald-400' : 'text-purple-400'} opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
 
 const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [formData, setFormData] = useState({ 
-    p_500: 0, p_1l: 0, alum: 0, g_500: 0, g_300: 0, card: 0, walk: 0, bus: 0 
+  const [formData, setFormData] = useState({
+    p_500: 0, p_1l: 0, alum: 0, g_500: 0, g_300: 0, card: 0, walk: 0, bus: 0
   });
   const [result, setResult] = useState<ImpactResult | null>(null);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setResult(calculateImpact(formData));
   };
+
 
   const formFields = [
     { id: 'p_500', label: '500ml Plastic Bottles', icon: <Globe className="text-blue-400" />, section: 'Recycling' },
@@ -128,11 +260,12 @@ const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     { id: 'bus', label: 'Bus Kilometres (vs Car)', icon: <Calculator className="text-purple-400" />, section: 'Transport' },
   ];
 
+
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }}
+    <motion.div
+      initial={{ opacity: 0 , y: 50}}
+      animate={{ opacity: 1 , y: 0}}
+      exit={{ opacity: 0, y: 50}}
       className="fixed inset-0 z-[100] bg-slate-950 overflow-y-auto"
     >
       <div className="fixed inset-0 z-[-1] opacity-30">
@@ -141,15 +274,18 @@ const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </Canvas>
       </div>
 
+
       <div className="max-w-5xl mx-auto px-6 py-24">
         <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-12 transition-colors">
           <ArrowLeft size={20} /> Back to Earth
         </button>
 
+
         <div className="text-center mb-16">
           <h1 className="text-5xl font-black mb-4">Precision Impact Calculator</h1>
           <p className="text-slate-400 text-lg">Detailed assessment based on our latest carbon factors.</p>
         </div>
+
 
         <form onSubmit={handleSubmit} className="space-y-12 mb-16">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -164,31 +300,32 @@ const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{field.section}</span>
                   </div>
                 </div>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="any"
                   min="0"
                   value={formData[field.id as keyof typeof formData]}
                   onChange={(e) => setFormData({ ...formData, [field.id]: parseFloat(e.target.value) || 0 })}
-                  className="bg-slate-900/50 border-2 border-white/5 rounded-2xl p-4 text-xl font-black focus:border-blue-500 outline-none transition-all shadow-inner"
+                  className="bg-slate-900/50 border-2 border-white/5 rounded-2xl p-4 text-xl font-black focus:border-blue-500 outline-none transition-all shadow-inner text-white"
                   placeholder="0"
                 />
               </div>
             ))}
           </div>
-          <button 
-            type="submit" 
-            className="w-full py-8 rounded-3xl bg-blue-500 hover:bg-blue-600 font-black text-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-4"
+          <button
+            type="submit"
+            className="w-full py-8 rounded-3xl bg-blue-500 hover:bg-blue-600 font-black text-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-4 text-white"
           >
             <Calculator size={32} />
             Generate Detailed Impact Report
           </button>
         </form>
 
+
         <AnimatePresence>
           {result && (
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }} 
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               className="clay-card p-10 bg-emerald-500/5 border-emerald-500/20"
             >
@@ -217,22 +354,25 @@ const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
+
 // --- Main App ---
 
+
 const App: React.FC = () => {
-  
+ 
   // line below: only in studio
-  const [view, setView] = useState<'landing' | 'calculator'>('landing');
-  
+  const [view, setView] = useState<'landing' | 'calculator' | 'stats'>('landing');
+ 
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+ 
   // few lines below: only in studio
   const heroRef = useRef<HTMLElement>(null);
   const tasksRef = useRef<HTMLElement>(null);
   const leaderboardRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
-  
+ 
+
 
   // Scroll monitoring
   const { scrollYProgress } = useScroll({
@@ -240,28 +380,34 @@ const App: React.FC = () => {
     offset: ["start start", "end end"]
   });
 
+
   // Earth scale animation (starts expanding as you scroll)
   // Start at 1.5 and grow to 10.0
   const earthScale = useTransform(scrollYProgress, [0, 0.4], [1.5, 3.0]);
   const earthOpacity = useTransform(scrollYProgress, [0.4, 0.5], [1, 0]);
-  
+ 
   // Text fade out as scroll progresses
   const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const textY = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
+
 
   // Tree growth section monitoring
   const treeSectionRef = useRef(null);
   const isTreeInView = useInView(treeSectionRef, { amount: 0.5, once: false });
 
+
   const toggleTask = (id: number) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
+
   // below few lines scrollToSection: only in studio
+
 
   const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
 
   return (
     // below few lines: only in studio
@@ -269,14 +415,17 @@ const App: React.FC = () => {
       <AnimatePresence mode="wait">
         {view === 'calculator' && (
           <CalculatorPage key="calculator" onBack={() => setView('landing')} />
-      
+     
+        )}
+        {view === 'stats' && (
+          <StatsPage key="stats" onBack={() => setView('landing')} />
         )}
       {/* Navigation */}
       </AnimatePresence>"
-      
+     
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center backdrop-blur-md bg-slate-950/20 border-b border-white/5">
-        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => scrollToSection(heroRef)}> 
+        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => scrollToSection(heroRef)}>
           <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:rotate-12 transition-transform">
             <Globe className="text-white" size={24} />
           </div>
@@ -296,7 +445,7 @@ const App: React.FC = () => {
             <Info size={18} /> About
           </li>
         </ul>
-        
+       
         <div className="flex items-center gap-4">
           <button onClick={() => setView('calculator')} className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
             My Impact
@@ -304,15 +453,33 @@ const App: React.FC = () => {
         <a href='signin.html' className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm bg-emerald-600 hover:bg-emerald-500">
           Join Community
         </a>
+
+          <div className="relative group">
+              <button 
+                onClick={() => setView('stats')}
+                className="w-12 h-12 rounded-full bg-slate-800 border-2 border-white/10 flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all overflow-hidden"
+              >
+                {/* Simple Avatar SVG */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="white" fillOpacity="0.8"/>
+                  <path d="M4 20C4 16.6863 6.68629 14 10 14H14C17.3137 14 20 16.6863 20 20V20H4V20Z" fill="white" fillOpacity="0.8"/>
+                </svg>
+              </button>
+              <div className="absolute top-14 right-0 bg-slate-900 border border-white/10 rounded-xl py-2 px-4 shadow-2xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 pointer-events-none transition-all whitespace-nowrap z-50">
+                <span className="text-xs font-black uppercase text-slate-300 tracking-widest">View profile</span>
+              </div>
+            </div>
         </div>
+
 
       </nav>
 
+
       {/* Hero Section - Fixed background logic for the scroll effect */}
       <section ref={heroRef} className="h-screen sticky top-0 flex flex-col items-center justify-center px-4 relative min-h-[200vh] overflow-visible pt-20">
-        
+       
         {/* Text content - Now positioned above the Earth container */}
-        <motion.div 
+        <motion.div
           style={{ opacity: textOpacity, y: textY }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -331,9 +498,12 @@ const App: React.FC = () => {
           </p>
         </motion.div>
 
+
         {/* 3D Earth Viewport - Positioned relative and below text */}
         {/* <div className="relative w-full flex-grow z-0 cursor-grab active:cursor-grabbing"> */}
         <div className="relative w-full h-screen overflow-visible z-0 cursor-grab active:cursor-grabbing">
+
+
 
 
           <Canvas dpr={[1, 2]}>
@@ -342,9 +512,10 @@ const App: React.FC = () => {
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} intensity={1.5} />
               <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
-              
+             
               {/* Fix: Replaced motion.group with a custom AnimatedEarth component that correctly handles motion values via useFrame */}
               <AnimatedEarth scale={earthScale} opacity={earthOpacity} />
+
 
               <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
               <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.5} />
@@ -354,13 +525,15 @@ const App: React.FC = () => {
         </div>
       </section>
 
+
       {/* Transition Space - Provides the scroll length to animate Earth growth */}
       <div className="h-screen pointer-events-none" />
+
 
       {/* Daily Tasks Section */}
       <section ref={tasksRef} className="min-h-screen relative flex items-center justify-center py-20 px-8 bg-slate-900/50">
         <div ref={treeSectionRef} className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
-          
+         
           {/* Growing Tree Column */}
           <div className="h-[500px] w-full relative">
             <Canvas>
@@ -375,10 +548,11 @@ const App: React.FC = () => {
               <span className="text-slate-500 font-mono text-sm tracking-widest uppercase">Digital Reforestation</span>
             </div>
           </div>
-      
+     
+
 
           {/* Tasks Column */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -390,14 +564,15 @@ const App: React.FC = () => {
                 Daily Tasks
               </h2>
               <p className="text-slate-400 text-lg">
-                Small consistent actions lead to massive planetary shifts. 
+                Small consistent actions lead to massive planetary shifts.
                 Complete your daily quest to grow your digital tree.
               </p>
             </div>
 
+
             <div className="space-y-4">
               {tasks.map(task => (
-                <div 
+                <div
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
                   className={`clay-card p-6 flex items-center justify-between cursor-pointer transition-all hover:scale-[1.02] ${task.completed ? 'opacity-60 grayscale' : ''}`}
@@ -415,13 +590,14 @@ const App: React.FC = () => {
                 </div>
               ))}
             </div>
-            
+           
             <button className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 transition-colors font-bold text-lg shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
               Sync Smart Watch <ChevronRight size={20} />
             </button>
           </motion.div>
         </div>
       </section>
+
 
       {/* Galaxy of Planets Section */}
       <section className="min-h-screen relative flex flex-col items-center justify-center py-32 px-8 overflow-hidden">
@@ -431,6 +607,7 @@ const App: React.FC = () => {
             Explore other eco-systems created by our top contributors. Each planet represents a distinct community goal.
           </p>
         </div>
+
 
 {/* in studio file its 600 instead of 800*/}
         <div className="h-[800px] w-full cursor-grab active:cursor-grabbing">
@@ -443,18 +620,20 @@ const App: React.FC = () => {
               <group position={[-3, 1, 0]}>
                 <GalaxyPlanet color="#f472b6" size={1.2} position={[0, 0, 0]} distort={0.4} />
               </group>
-              
+             
               <group position={[3, -1, -2]}>
                 <GalaxyPlanet color="#fbbf24" size={0.8} position={[0, 0, 0]} distort={0.2} />
               </group>
-              
+             
               <group position={[0, 2, -4]}>
                 <GalaxyPlanet color="#a78bfa" size={1.5} position={[0, 0, 0]} distort={0.5} />
               </group>
 
+
               <group position={[-4, -2, -3]}>
                 <GalaxyPlanet color="#2dd4bf" size={1} position={[0, 0, 0]} distort={0.3} />
               </group>
+
 
               <OrbitControls enableZoom={false} rotateSpeed={0.3} autoRotate autoRotateSpeed={0.5} />
               <Environment preset="night" />
@@ -462,6 +641,7 @@ const App: React.FC = () => {
           </Canvas>
         </div>
       </section>
+
 
       {/* Leaderboard Section. in line 350 onwards in textCompare not yet implemented */}
       <section ref={leaderboardRef} className="min-h-screen py-24 px-8 bg-slate-950/40">
@@ -480,9 +660,10 @@ const App: React.FC = () => {
             </div>
           </div>
 
+
           <div className="space-y-4">
             {LEADERBOARD.map((user, idx) => (
-              <motion.div 
+              <motion.div
                 key={user.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -512,22 +693,34 @@ const App: React.FC = () => {
 
 
 
+
+
+
           <div className="flex justify-center">
-            <motion.button 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }} 
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setView('calculator')}
               className="px-12 py-6 rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2x1 shadow-2x1 shadow-emerald-500/20 flex items-center gap-4 transition-colors group">
 
-      
+
+     
               <Calculator size={32} className="group-hover:rotate-12 transition-transform" />
               What's your impact?
             </motion.button>
           </div>
 
 
-          
+
+
+         
       </section>
+
+
+
+
+
+
 
 
 
@@ -556,7 +749,7 @@ const App: React.FC = () => {
               ))}
             </div>
           </div>
-          
+         
           <div className="space-y-4">
             <h5 className="font-bold text-lg uppercase tracking-widest text-slate-400">Platform</h5>
             <ul className="space-y-2 text-slate-500 font-medium">
@@ -566,6 +759,7 @@ const App: React.FC = () => {
               <li className="hover:text-blue-400 cursor-pointer">Enterprise</li>
             </ul>
           </div>
+
 
           <div className="space-y-4">
             <h5 className="font-bold text-lg uppercase tracking-widest text-slate-400">Support</h5>
@@ -582,6 +776,7 @@ const App: React.FC = () => {
         </div>
       </footer>
 
+
       {/* Global Galaxy Background for all sections */}
       <div className="fixed inset-0 z-[-1] opacity-40 pointer-events-none">
         <Canvas>
@@ -589,8 +784,13 @@ const App: React.FC = () => {
         </Canvas>
       </div>
 
+
     </div>
   );
 };
 
+
 export default App;
+
+
+
