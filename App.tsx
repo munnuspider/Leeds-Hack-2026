@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Stars } from '@react-three/drei';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
-import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag, User } from 'lucide-react';
+import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag, User, Users, Wind, Activity } from 'lucide-react';
 import { SoftEarth, ClayTree, GalaxyPlanet } from './components/ThreeModels';
 import { Task, LeaderboardEntry } from './types';
 import * as THREE from 'three';
@@ -136,7 +136,7 @@ const AnimatedEarth: React.FC<{ scale: any; opacity: any }> = ({ scale, opacity 
 };
 
 
-const StatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const StatsPage: React.FC<{ onBack: () => void; onPlanetClick: (name: string) => void }> = ({ onBack, onPlanetClick }) => {
   // Sample Data
   const userData = {
     username: "EcoExplorer_2025",
@@ -206,9 +206,13 @@ const StatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </h3>
               <div className="space-y-3">
                 {userData.planets.map(planet => (
-                  <div key={planet} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-white/5">
-                    <span className="font-bold text-slate-200">{planet}</span>
+                  <div key={planet} onClick={() => onPlanetClick(planet)}
+                  className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors group">
+                    <span className="font-bold text-slate-200 group-hover:text-white transition-colors">{planet}</span>
+                    <div className="flex items-center gap-2">
                     <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-black rounded-lg">ACTIVE</div>
+                    <ChevronRight size={16} className="text-slate-600 group-hover:translate-x-1 transition-transform" />
+                  </div>
                   </div>
                 ))}
               </div>
@@ -355,14 +359,102 @@ const CalculatorPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 };
 
 
+const PlanetDetailsPage: React.FC<{ planetName: string; onBack: () => void }> = ({ planetName, onBack }) => {
+  // Planet-specific mock stats
+  const stats = {
+    population: "12,452",
+    airQuality: "Pristine",
+    totalSaved: "54,200kg",
+    ecosystem: "Lush",
+    color: planetName === 'Nova' ? '#f472b6' : planetName === 'Verdant' ? '#4ade80' : '#3b82f6'
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      exit={{ opacity: 0, scale: 0.9 }}
+      className="fixed inset-0 z-[110] bg-slate-950 overflow-y-auto"
+    >
+      <div className="fixed inset-0 z-[-1] opacity-40">
+        <Canvas>
+          <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
+        </Canvas>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-24">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-12 transition-colors">
+          <ArrowLeft size={20} /> Back to Profile
+        </button>
+
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* 3D Planet Left Side */}
+          <div className="h-[500px] w-full cursor-grab active:cursor-grabbing">
+            <Canvas>
+              <Suspense fallback={null}>
+                <ambientLight intensity={0.5} />
+                <pointLight position={[10, 10, 10]} intensity={2} />
+                <GalaxyPlanet color={stats.color} size={2} position={[0, 0, 0]} distort={0.3} />
+                <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
+                <Environment preset="night" />
+              </Suspense>
+            </Canvas>
+          </div>
+
+          {/* Planet Stats Right Side */}
+          <div className="space-y-10">
+            <div>
+              <h1 className="text-6xl font-black mb-4 tracking-tighter">Planet {planetName}</h1>
+              <p className="text-slate-400 text-xl font-medium max-w-lg">
+                This community-driven ecosystem has been restored through the collective efforts of its guardians.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="clay-card p-6 border-white/5 bg-white/5 space-y-2">
+                <Users className="text-blue-400" size={24} />
+                <p className="text-slate-500 font-black text-xs uppercase tracking-widest">Population</p>
+                <p className="text-3xl font-black text-white">{stats.population}</p>
+              </div>
+              <div className="clay-card p-6 border-white/5 bg-white/5 space-y-2">
+                <Wind className="text-emerald-400" size={24} />
+                <p className="text-slate-500 font-black text-xs uppercase tracking-widest">Air Quality</p>
+                <p className="text-3xl font-black text-white">{stats.airQuality}</p>
+              </div>
+              <div className="clay-card p-6 border-white/5 bg-white/5 space-y-2">
+                <Activity className="text-purple-400" size={24} />
+                <p className="text-slate-500 font-black text-xs uppercase tracking-widest">Ecosystem</p>
+                <p className="text-3xl font-black text-white">{stats.ecosystem}</p>
+              </div>
+              <div className="clay-card p-6 border-white/5 bg-white/5 space-y-2">
+                <Trophy className="text-yellow-400" size={24} />
+                <p className="text-slate-500 font-black text-xs uppercase tracking-widest">CO2 Saved</p>
+                <p className="text-3xl font-black text-white">{stats.totalSaved}</p>
+              </div>
+            </div>
+
+            <button className="w-full py-6 rounded-3xl bg-white text-slate-950 font-black text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/5">
+              Contribute to {planetName}
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
+
+
 // --- Main App ---
 
 
 const App: React.FC = () => {
  
   // line below: only in studio
-  const [view, setView] = useState<'landing' | 'calculator' | 'stats'>('landing');
- 
+  const [view, setView] = useState<'landing' | 'calculator' | 'stats' | 'planet-details'>('landing');
+  const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null);
+
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const containerRef = useRef<HTMLDivElement>(null);
  
@@ -418,10 +510,17 @@ const App: React.FC = () => {
      
         )}
         {view === 'stats' && (
-          <StatsPage key="stats" onBack={() => setView('landing')} />
+          <StatsPage key="stats" onBack={() => setView('landing')}
+          onPlanetClick={(name) => { setSelectedPlanet(name); setView('planet-details');}} />
         )}
+        {view === 'planet-details' && selectedPlanet && (
+          <PlanetDetailsPage key={'planet-${selectedPlanet}'}
+          planetName={selectedPlanet} onBack={() => setView('stats')}
+          />
+        )}
+        
       {/* Navigation */}
-      </AnimatePresence>"
+      </AnimatePresence>
      
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center backdrop-blur-md bg-slate-950/20 border-b border-white/5">
@@ -701,7 +800,7 @@ const App: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setView('calculator')}
-              className="px-12 py-6 rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2x1 shadow-2x1 shadow-emerald-500/20 flex items-center gap-4 transition-colors group">
+              className="px-12 py-6 rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2xl shadow-2xl shadow-emerald-500/20 flex items-center gap-4 transition-colors group">
 
 
      
