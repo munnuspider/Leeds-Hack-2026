@@ -28,7 +28,6 @@
       font-weight: 300;
     }
 
-    /* Outer card */
     .card {
       width: 90%;
       max-width: 900px;
@@ -38,7 +37,6 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     }
 
-    /* Inner panel */
     .panel {
       padding: 40px;
       border-radius: 14px;
@@ -82,7 +80,6 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Optional button (not shown in image but useful) */
     .btn {
       margin-top: 20px;
       width: 100%;
@@ -98,6 +95,13 @@
     .btn:hover {
       opacity: 0.9;
     }
+
+    #status-msg {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      min-height: 24px;
+    }
   </style>
 </head>
 
@@ -111,7 +115,7 @@
         <label>Username</label>
         <div class="input-wrapper">
           <span class="icon">🤖</span>
-          <input type="text" placeholder="Enter username" />
+          <input type="text" id="username" placeholder="Enter username" />
         </div>
       </div>
 
@@ -119,12 +123,13 @@
         <label>Password</label>
         <div class="input-wrapper">
           <span class="icon">🤖</span>
-          <input type="password" placeholder="Enter password" />
+          <input type="password" id="password" placeholder="Enter password" />
         </div>
       </div>
 
-     
-      <button class="btn">Continue</button> 
+      <button class="btn" onclick="checkLogin()">Continue</button> 
+      
+      <div id="status-msg"></div>
       
     </div>
   </div>
@@ -135,17 +140,13 @@
         const pass = document.getElementById('password').value;
         const status = document.getElementById('status-msg');
 
-       
-        if (user.toLowerCase() === "supremeSpaceCaptain" && pass === "galacticSpaceSuit") {
+        // Logic updated to match your required credentials
+        if (user === "supremeSpaceCaptain" && pass === "galacticSpaceSuit") {
             status.style.color = "#2ecc71";
             status.innerText = "Access Granted! Welcome, Pilot.";
             
-           
             localStorage.setItem('active_user', user);
             
-           
-            console.log("Active user set to: " + user);
-
             setTimeout(function() {
                 window.location.href = "index.html";
             }, 1000); 
@@ -158,6 +159,3 @@
   </script>
 </body>
 </html>
-
-
-
