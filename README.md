@@ -1,5 +1,35 @@
 # Leeds-Hack-2026
 
+GUIDE FOR USER!
+Instructions / manual
+
+1. open terminal, then type these one by one
+2. cd LLM
+3. curl -fsSL https://ollama.com/install.sh | sh
+4. pip install fastapi uvicorn langchain langchain-community faiss-cpu pypdf
+5. ollama serve
+6. don't close this terminal
+
+7. open second terminal:
+8. cd LLM
+9. ollama pull nomic-embed-text
+10. ollama pull gemma3:1b
+
+11. open third terminal:
+12. cd LLM
+13. uvicorn main:app --reload --port 8000
+14. go to ports, find port 8000 and go to port visibility and make it public
+
+15. open fourth terminal:
+16. node -v
+17. npm -v
+18. npm install
+20. npm run dev
+21. open the port link provided
+
+
+
+
 LOGIC AND FLOW OF PLANET WEBSITE
 Back-end guide for Bhavya and Hafeezah
 
