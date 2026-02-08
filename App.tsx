@@ -546,13 +546,6 @@ const App: React.FC = () => {
             <Info size={18} /> About
           </li>
         </ul>
-        #need to add about me stuff here somewhere
-       
-
-
-
-
-
 
         <div className="flex items-center gap-4">
           <button onClick={() => setView('calculator')} className="px-6 py-2.5 clay-button rounded-full font-semibold text-sm">
@@ -891,9 +884,6 @@ const App: React.FC = () => {
           <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
         </Canvas>
       </div>
-
-      {/* Chatbot Widget */}
-<ChatbotWidget />
 
 
     </div>
