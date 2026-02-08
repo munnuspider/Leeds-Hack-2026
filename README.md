@@ -11,7 +11,9 @@ Back-end guide for Bhavya and Hafeezah
   - Prompt Engineering
   - Retrieval + QA - When a user asks a question, the bot first retrieves the most relevant chunks from FAISS.
 
-  
+- Custom built carbon emissions calculator (OOP)
+  - for users to input their daily recycling, transportation tasks for them to calculate the amount of c02 carbon emissions saved
+
 - XP TRACKERS
   - Tasks
     - Recycling bottles and cartons
