@@ -3,11 +3,13 @@
 LOGIC AND FLOW OF PLANET WEBSITE
 Back-end guide for Bhavya and Hafeezah
 
-- CHATBOT
-  - Using open source dataset with environmental science education
+- CUSTOM CHATBOT - RAG (Retrieval-Augmented Generation)
   - NLP
   - Genio: Rebooting learning
-  - Google Gemini AI?
+  - PyPDF - custom chatbot data about the environment and recycling
+  - Ollama model - gemma3:1b
+  - Prompt Engineering
+  - Retrieval + QA - When a user asks a question, the bot first retrieves the most relevant chunks from FAISS.
 
   
 - XP TRACKERS
