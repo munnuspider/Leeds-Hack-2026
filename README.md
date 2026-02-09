@@ -17,7 +17,7 @@ Instructions / manual
 
 11. open third terminal:
 12. cd LLM
-13. uvicorn main:app --reload --port 8000
+13. uvicorn api:app --reload --port 8000
 14. go to ports, find port 8000 and go to port visibility and make it public
 
 15. open fourth terminal:

@@ -4,6 +4,7 @@ export interface Task {
   title: string;
   impact: string;
   completed: boolean;
+  xpReward: number;
 }
 
 export interface LeaderboardEntry {

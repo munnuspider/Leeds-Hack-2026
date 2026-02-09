@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Stars } from '@react-three/drei';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
-import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag, User, Users, Wind, Activity } from 'lucide-react';
+import { Leaf, Award, Info, Globe, CheckCircle2, Trophy, ChevronRight, Calculator, ArrowLeft, Zap, Box, ShoppingBag, User, Users, Wind, Activity, MessageSquare, Send } from 'lucide-react';
 import { SoftEarth, ClayTree, GalaxyPlanet } from './components/ThreeModels';
 import { Task, LeaderboardEntry } from './types';
 import * as THREE from 'three';
@@ -12,10 +12,10 @@ import ChatbotWidget from './ChatbotWidget';
 
 
 const INITIAL_TASKS: Task[] = [
-  { id: 1, title: 'Use a reusable water bottle', impact: '2.5kg CO2 saved', completed: true },
-  { id: 2, title: 'Compost organic waste', impact: '1.2kg CO2 saved', completed: false },
-  { id: 3, title: 'Switch to LED bulbs', impact: '5.0kg CO2 saved', completed: false },
-  { id: 4, title: 'Walk to work/school', impact: '3.8kg CO2 saved', completed: false },
+  { id: 1, title: 'Use a reusable water bottle', impact: '2.5kg CO2 saved', completed: true, xpReward: 15 },
+  { id: 2, title: 'Compost organic waste', impact: '1.2kg CO2 saved', completed: false, xpReward: 10 },
+  { id: 3, title: 'Switch to LED bulbs', impact: '5.0kg CO2 saved', completed: false, xpReward: 25 },
+  { id: 4, title: 'Walk to work/school', impact: '3.8kg CO2 saved', completed: false, xpReward: 20 },
 ];
 
 
@@ -137,8 +137,46 @@ const AnimatedEarth: React.FC<{ scale: any; opacity: any }> = ({ scale, opacity 
   );
 };
 
+const LevelProgressBar: React.FC<{ totalXP: number; onClick?: () => void }> = ({ totalXP, onClick }) => {
+  const { level, xpInCurrentLevel, xpForNext, progress } = getLevelData(totalXP);
+  return (
+    <div
+      onClick={onClick}
+      className={`clay-card p-10 bg-white/5 transition-all ${onClick ? 'cursor-pointer hover:bg-white/10 group' : ''}`}
+    >
+      <div className="flex justify-between items-end mb-6">
+        <div>
+          <span className="text-slate-500 font-bold uppercase text-xs tracking-tighter">Current Rank</span>
+          <h2 className="text-4xl font-black text-white flex items-center gap-3">
+            Level {level}
+            {onClick && <ChevronRight className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />}
+          </h2>
+        </div>
+        <div className="text-right">
+          <span className="text-slate-400 font-bold">{xpInCurrentLevel} / {xpForNext} XP</span>
+        </div>
+      </div>
+      <div className="h-4 w-full bg-slate-900 rounded-full overflow-hidden shadow-inner">
+        <motion.div
+          initial={false}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 1.0, ease: "easeOut" }}
+          className="h-full bg-gradient-to-r from-blue-500 to-emerald-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+        />
+      </div>
+    </div>
+  );
+};
 
-const StatsPage: React.FC<{ onBack: () => void; onPlanetClick: (name: string) => void }> = ({ onBack, onPlanetClick }) => {
+const StatsPage: React.FC<{
+  totalXP: number;
+  onBack: () => void;
+  onPlanetClick: (name: string) => void;
+  onXPClick: () => void;
+}> = ({ totalXP, onBack, onPlanetClick, onXPClick }) => {
+
+
+// const StatsPage: React.FC<{ totalXP: number; onBack: () => void; onPlanetClick: (name: string) => void }> = ({ onBack, onPlanetClick }) => {
   // Sample Data
   const userData = {
     username: "EcoExplorer_2025",
@@ -180,6 +218,7 @@ const StatsPage: React.FC<{ onBack: () => void; onPlanetClick: (name: string) =>
 
         <div className="grid gap-8">
           {/* Level Progress */}
+          <LevelProgressBar totalXP={totalXP} onClick={onXPClick} />
           <div className="clay-card p-10 bg-white/5">
             <div className="flex justify-between items-end mb-6">
               <div>
@@ -239,6 +278,149 @@ const StatsPage: React.FC<{ onBack: () => void; onPlanetClick: (name: string) =>
     </motion.div>
   );
 };
+
+
+
+
+const TaskXPPage: React.FC<{
+  totalXP: number;
+  tasks: Task[];
+  onBack: () => void;
+  onCompleteTask: (taskId: number, reflection: string) => void;
+}> = ({ totalXP, tasks, onBack, onCompleteTask }) => {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [reflection, setReflection] = useState('');
+  const username = "EcoExplorer_2025";
+  const handleTaskClick = (task: Task) => {
+    if (task.completed) return;
+    setSelectedTask(task);
+    setReflection('');
+  };
+  const handleSubmitReflection = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reflection.trim() || !selectedTask) return;
+    onCompleteTask(selectedTask.id, reflection);
+    setSelectedTask(null);
+  };
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      className="fixed inset-0 z-[120] bg-slate-950 overflow-y-auto"
+    >
+      <div className="fixed inset-0 z-[-1] opacity-30">
+        <Canvas>
+          <Stars radius={300} depth={60} count={20000} factor={7} saturation={0} fade speed={1} />
+        </Canvas>
+      </div>
+      <div className="max-w-4xl mx-auto px-6 py-24">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-12 transition-colors">
+          <ArrowLeft size={20} /> Back to Profile
+        </button>
+        <div className="mb-12 space-y-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+               <User className="text-white" size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black">{username}</h1>
+              <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Growth Center</p>
+            </div>
+          </div>
+          <LevelProgressBar totalXP={totalXP} />
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-black flex items-center gap-3">
+            <Zap className="text-yellow-400" /> XP Opportunities
+          </h2>
+          <div className="grid gap-4">
+            {tasks.map(task => (
+              <motion.div
+                key={task.id}
+                whileHover={!task.completed ? { scale: 1.02 } : {}}
+                onClick={() => handleTaskClick(task)}
+                className={`clay-card p-6 flex items-center justify-between transition-all ${task.completed ? 'opacity-50' : 'cursor-pointer hover:bg-white/5 border-emerald-500/10'}`}
+              >
+                <div className="flex items-center gap-5">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${task.completed ? 'bg-emerald-500/20' : 'bg-slate-800'}`}>
+                    <CheckCircle2 size={24} className={task.completed ? 'text-emerald-400' : 'text-slate-600'} />
+                  </div>
+                  <div>
+                    <h3 className={`font-bold text-lg ${task.completed ? 'line-through' : ''}`}>{task.title}</h3>
+                    <p className="text-sm text-slate-500">{task.impact}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`px-4 py-2 rounded-xl text-sm font-black ${task.completed ? 'bg-slate-900 text-slate-600' : 'bg-blue-500/20 text-blue-400'}`}>
+                    +{task.xpReward} XP
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Reflection Modal */}
+      <AnimatePresence>
+        {selectedTask && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[130] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="clay-card w-full max-w-lg p-10 bg-slate-900 border-emerald-500/30 overflow-hidden"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <MessageSquare size={28} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black">Mission Reflection</h3>
+                  <p className="text-slate-400 text-sm">How did "{selectedTask.title}" feel today?</p>
+                </div>
+              </div>
+              <form onSubmit={handleSubmitReflection} className="space-y-6">
+                <textarea
+                  required
+                  autoFocus
+                  value={reflection}
+                  onChange={(e) => setReflection(e.target.value)}
+                  placeholder="Today I realized that using a reusable bottle is actually more convenient than buying one..."
+                  className="w-full h-40 bg-slate-950 border-2 border-white/5 rounded-3xl p-6 text-slate-200 outline-none focus:border-emerald-500 transition-all resize-none font-medium"
+                />
+                
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTask(null)}
+                    className="flex-1 py-4 rounded-2xl font-bold text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!reflection.trim()}
+                    className="flex-[2] py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-lg shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    Submit & Earn XP <Send size={20} />
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+
 
 
 
@@ -454,8 +636,9 @@ const PlanetDetailsPage: React.FC<{ planetName: string; onBack: () => void }> = 
 const App: React.FC = () => {
  
   // line below: only in studio
-  const [view, setView] = useState<'landing' | 'calculator' | 'stats' | 'planet-details'>('landing');
+  const [view, setView] = useState<'landing' | 'calculator' | 'stats' | 'planet-details' | 'task-xp'>('landing');
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null);
+  const [totalXP, setTotalXP] = useState(145);
 
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -494,6 +677,15 @@ const App: React.FC = () => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
+  const handleCompleteTask = (taskId: number, reflection: string) => {
+  // below few lines scrollToSection: only in studio
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, completed: true } : t));
+    setTotalXP(prev => prev + (task.xpReward || 0));
+  };
+
 
   // below few lines scrollToSection: only in studio
 
@@ -512,16 +704,34 @@ const App: React.FC = () => {
      
         )}
         {view === 'stats' && (
-          <StatsPage key="stats" onBack={() => setView('landing')}
-          onPlanetClick={(name) => { setSelectedPlanet(name); setView('planet-details');}} />
+          <StatsPage
+            key="stats"
+            totalXP={totalXP}
+            onBack={() => setView('landing')} 
+            onPlanetClick={(name) => {
+              setSelectedPlanet(name);
+              setView('planet-details');
+            }}
+            onXPClick={() => setView('task-xp')}
+          />
+        )}
+        {view === 'task-xp' && (
+          <TaskXPPage
+            key="task-xp"
+            totalXP={totalXP}
+            tasks={tasks}
+            onBack={() => setView('stats')}
+            onCompleteTask={handleCompleteTask}
+          />
         )}
         {view === 'planet-details' && selectedPlanet && (
           <PlanetDetailsPage key={'planet-${selectedPlanet}'}
-          planetName={selectedPlanet} onBack={() => setView('stats')}
+            planetName={selectedPlanet} onBack={() => setView('stats')}
           />
         )}
         
-      {/* Navigation */}
+
+        
       </AnimatePresence>
      
       {/* Navigation */}
